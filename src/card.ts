@@ -225,11 +225,11 @@ export class SimplePlantCard extends LitElement {
 
             if (
                 (!this._entity_states.has(key))
-                || this._entity_states.get(key).state != this._hass.states[id].state
+                || (this._entity_states.get(key).state != this._hass.states[id].state)
             ) {
-                this._entity_states.set(key, this._hass.states[id])
                 trigger_update = true
             }
+            this._entity_states.set(key, this._hass.states[id])
         }
         if(trigger_update)
             this._states_updated = true
