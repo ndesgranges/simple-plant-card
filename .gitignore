@@ -1,0 +1,11 @@
+# artifacts
+__pycache__
+*.egg-info
+*/build/*
+*/dist/*
+
+
+# misc
+.coverage
+.vscode
+coverage.xml
