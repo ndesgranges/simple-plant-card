@@ -25,6 +25,7 @@ interface SimplePlantCardElements {
 export class SimplePlantCard extends HTMLElement {
 
     // properties
+    _hass : HomeAssistant;
     config : SimplePlantCardConfig;
     elements : SimplePlantCardElements ;
 
@@ -38,7 +39,7 @@ export class SimplePlantCard extends HTMLElement {
 
     // Updating content
     set hass(hass : HomeAssistant) {
-        this.hass = hass
+        this._hass = hass
         this.updateCard()
     }
 
@@ -52,22 +53,27 @@ export class SimplePlantCard extends HTMLElement {
     // Create card and its content
     renderCard() {
         // root
-        this.elements.card = document.createElement("ha-card");
-        // card content (required wrapper)
-        this.elements.cardContent = document.createElement("div")
-        this.elements.cardContent.classList.add("card-content");
-        this.elements.cardContent.innerHTML = HTML;
-        // Query child elements
-        this.elements.img = this.elements.cardContent.querySelector("img");
-        this.elements.title = this.elements.cardContent.querySelector(".title");
-        this.elements.schedule = this.elements.cardContent.querySelector(".schedule");
-        this.elements.health = this.elements.cardContent.querySelector(".health");
-        this.elements.button = this.elements.cardContent.querySelector(".button");
-        // add card content to the card
-        this.elements.card.append(this.elements.cardContent)
+        const card = document.createElement("ha-card");
+        const cardContent = document.createElement("div")
+
+        cardContent.classList.add("card-content"); // required wrapper
+        cardContent.innerHTML = HTML;
+        card.append(cardContent)
+
         // Get styles
-        this.elements.style = document.createElement("style");
-        this.elements.style.textContent = CSS;
+        const style = document.createElement("style");
+        style.textContent = CSS;
+
+        this.elements = {
+            "card" : card,
+            "cardContent" : cardContent,
+            "style" : style,
+            "img" : cardContent.querySelector("img"),
+            "title" : cardContent.querySelector(".title"),
+            "schedule" : cardContent.querySelector(".schedule"),
+            "health" : cardContent.querySelector(".health"),
+            "button" : cardContent.querySelector(".button"),
+        }
     }
 
     // Update card with content
