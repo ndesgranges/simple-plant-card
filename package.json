@@ -1,0 +1,17 @@
+{
+    "source": "src/simple-plant.js",
+    "main": "dist/simple-plant-card.js",
+    "scripts": {
+        "watch": "parcel watch",
+        "build": "parcel build"
+    },
+    "targets": {
+        "module": {
+            "includeNodeModules": true
+        }
+    },
+    "devDependencies": {
+        "@parcel/transformer-inline-string": "^2.14.4",
+        "parcel": "^2.14.4"
+    }
+}

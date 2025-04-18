@@ -1,11 +1,8 @@
-# artifacts
+# env
 __pycache__
-*.egg-info
-*/build/*
-*/dist/*
-
-
-# misc
-.coverage
+node_modules
 .vscode
-coverage.xml
+.parcel-cache
+
+# build
+dist/*

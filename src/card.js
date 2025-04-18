@@ -1,19 +1,8 @@
+import CSS from "bundle-text:./styles.css";
+import HTML from "bundle-text:./template.html";
 
-const CARD_TYPE="simple-plant-card";
-const CARD_NAME="Simple Plant Card";
-const CARD_DESCRIPTION="Custom card for simple-plant integration";
 
-const CARD_VERSION="v0.0.7";
-const CARD_AUTHOR="ndesgranges";
-
-console.info(
-    `%c 🪴 ${CARD_NAME} 🪴 %c ${CARD_VERSION} \n%c  By @${CARD_AUTHOR}`,
-    "color: green; background: white; font-weight: bold; border: solid 1px green; border-radius: 4px 0 0 4px",
-    "color: white; background: green; font-weight: bold; border: solid 1px green; border-radius:  0 4px 4px 0",
-    "color: green;",
-);
-
-class SimplePlantCard extends HTMLElement {
+export class SimplePlantCard extends HTMLElement {
 
     // properties
     config;
@@ -23,7 +12,6 @@ class SimplePlantCard extends HTMLElement {
     constructor() {
         super();
         this.renderCard();
-        this.createStyles()
         // Create shadow root
         this.attachShadow({ mode: "open" });
         this.shadowRoot.append(this.elements.style, this.elements.card);
@@ -31,7 +19,6 @@ class SimplePlantCard extends HTMLElement {
 
     // Updating content
     set hass(hass) {
-
         this.hass = hass
         this.updateCard()
     }
@@ -47,29 +34,24 @@ class SimplePlantCard extends HTMLElement {
     renderCard() {
         // root
         this.elements.card = document.createElement("ha-card");
-        // card content (wrapper)
+        // card content (required wrapper)
         this.elements.cardContent = document.createElement("div")
         this.elements.cardContent.classList.add("card-content");
-        this.elements.cardContent.innerHTML = `
-            <div>TEST CONTENT</div>
-            `;
-
-
+        this.elements.cardContent.innerHTML = HTML;
+        // Query child elements
+        this.elements.img = this.elements.cardContent.querySelector("img");
+        this.elements.title = this.elements.cardContent.querySelector(".title");
+        this.elements.schedule = this.elements.cardContent.querySelector(".schedule");
+        this.elements.health = this.elements.cardContent.querySelector(".health");
+        this.elements.button = this.elements.cardContent.querySelector(".button");
         // add card content to the card
         this.elements.card.append(this.elements.cardContent)
-    }
-
-    // Get style element
-    createStyles() {
+        // Get styles
         this.elements.style = document.createElement("style");
-        this.elements.style.textContent = `
-            .error {
-                color: red;
-            }
-            `;
+        this.elements.style.textContent = CSS;
     }
 
-    // Hass Updated
+    // Update card with content
     updateCard() {
 
     }
@@ -88,13 +70,3 @@ class SimplePlantCard extends HTMLElement {
         };
     }
 }
-
-customElements.define(CARD_TYPE, SimplePlantCard);
-
-// Register for the visual selection in the UI
-window.customCards = window.customCards || [];
-window.customCards.push({
-    type: CARD_TYPE,
-    name: CARD_NAME,
-    description: CARD_DESCRIPTION
-});
