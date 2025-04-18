@@ -1,0 +1,7 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "isolatedModules": true,
+        "target": "es2017",
+    }
+}

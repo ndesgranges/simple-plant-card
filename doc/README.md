@@ -21,6 +21,7 @@ This project contains the following files and folders
 | package.json      | List all dependencies and bundle config               |
 | preview.png       | Preview image of the card into a dashboard            |
 | README.md         | Entry repository description & instructions           |
+| tsconfig.json     | Typescript Configuration                              |
 
 > __*__ Do not modify `dist/` sources directly, it may be overwritten, modify sources in `src/`
 
@@ -29,7 +30,11 @@ This project contains the following files and folders
 This card is designed to be used with `simple-plant` integration.
 The code is intented to be as understandable as possible.
 
-[Parcel](https://parceljs.org/) is used as bundler (what basically creates `dist/` from `src/`)
+[Parcel](https://parceljs.org/) is used as
+bundler (what basically creates `dist/` from `src/`)
+
+It is coded in typescript for type awarness instead of vanilla javascript.
+But the goal is not to bloat the code, but to keep it simple and clean.
 
 # What's next
 

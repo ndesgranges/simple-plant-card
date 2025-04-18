@@ -15,6 +15,13 @@ console.info(
 
 customElements.define(CARD_TYPE, SimplePlantCard);
 
+// Define Window.customCards type for TS not to complain
+declare global {
+  interface Window {
+    customCards: Array<Object>;
+  }
+}
+
 // Register for the visual selection in the UI
 window.customCards = window.customCards || [];
 window.customCards.push({
