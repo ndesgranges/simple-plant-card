@@ -1,85 +1,55 @@
-
 import { HassEntity } from "home-assistant-js-websocket";
-import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";
+import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";``
+import { html, LitElement } from 'lit';
 
-
-import CSS from "bundle-text:./styles.css";
-import HTML from "bundle-text:./template.html";
 
 
 interface SimplePlantCardConfig extends LovelaceCardConfig {
-  entity: string;
+  name: string;
 }
 
-interface SimplePlantCardElements {
-    card: HTMLElement;
-    cardContent: HTMLElement;
-    img: HTMLImageElement;
-    title: HTMLElement;
-    schedule: HTMLElement;
-    health: HTMLElement;
-    button: HTMLElement;
-    style: HTMLStyleElement;
-}
-
-export class SimplePlantCard extends HTMLElement {
+export class SimplePlantCard extends LitElement {
 
     // properties
-    _hass : HomeAssistant;
-    config : SimplePlantCardConfig;
-    elements : SimplePlantCardElements ;
+    private _hass : HomeAssistant;
 
-    constructor() {
-        super();
-        this.renderCard();
-        // Create shadow root
-        this.attachShadow({ mode: "open" });
-        this.shadowRoot.append(this.elements.style, this.elements.card);
-    }
+    private _name: string;
+    private _entities: Array<HassEntity>;
 
     // Updating content
     set hass(hass : HomeAssistant) {
         this._hass = hass
-        this.updateCard()
     }
 
+    static properties = {
+        _name: { type: String, state: true },
+        _entities: { type: Array, state: true }
+    };
+
+    static styles =  new CSSStyleSheet({ baseURL: "./styles.css" });
+
     setConfig(config : SimplePlantCardConfig) {
-        if (!config.entity) {
-            throw new Error("You need to define an entity");
+        if (!config.name) {
+            throw new Error("You need to define a name");
         }
-        this.config = config;
+        this._name = config.name;
+        // while editing the entity in the card editor
+        if (this._hass) {
+            this.hass = this._hass
+        }
     }
 
     // Create card and its content
-    renderCard() {
-        // root
-        const card = document.createElement("ha-card");
-        const cardContent = document.createElement("div")
-
-        cardContent.classList.add("card-content"); // required wrapper
-        cardContent.innerHTML = HTML;
-        card.append(cardContent)
-
-        // Get styles
-        const style = document.createElement("style");
-        style.textContent = CSS;
-
-        this.elements = {
-            "card" : card,
-            "cardContent" : cardContent,
-            "style" : style,
-            "img" : cardContent.querySelector("img"),
-            "title" : cardContent.querySelector(".title"),
-            "schedule" : cardContent.querySelector(".schedule"),
-            "health" : cardContent.querySelector(".health"),
-            "button" : cardContent.querySelector(".button"),
-        }
+    render() {
+        return html`
+            <ha-card">
+                <div class="card-content">
+                    TEST CONTENT
+                </div>
+            </ha-card>
+        `;
     }
 
-    // Update card with content
-    updateCard() {
-
-    }
 
     getCardSize() {
         return 1;

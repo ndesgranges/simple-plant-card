@@ -1,6 +1,6 @@
 {
     "source": "src/simple-plant.ts",
-    "main": "dist/simple-plant-card.js",
+    "module": "dist/simple-plant-card.js",
     "scripts": {
         "watch": "parcel watch",
         "build": "parcel build"
@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "custom-card-helpers": "^1.9.0",
-        "home-assistant-js-websocket": "^9.5.0"
+        "home-assistant-js-websocket": "^9.5.0",
+        "lit": "^3.3.0"
     }
 }
