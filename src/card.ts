@@ -1,11 +1,10 @@
 import { HassEntity } from "home-assistant-js-websocket";
 import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";``
 import { html, LitElement } from 'lit';
+import { CARD_TYPE } from "./consts"
 
-
-
-interface SimplePlantCardConfig extends LovelaceCardConfig {
-  name: string;
+export interface SimplePlantCardConfig extends LovelaceCardConfig {
+  device: string;
 }
 
 export class SimplePlantCard extends LitElement {
@@ -13,7 +12,7 @@ export class SimplePlantCard extends LitElement {
     // properties
     private _hass : HomeAssistant;
 
-    private _name: string;
+    private _device: string;
     private _entities: Array<HassEntity>;
 
     // Updating content
@@ -22,17 +21,17 @@ export class SimplePlantCard extends LitElement {
     }
 
     static properties = {
-        _name: { type: String, state: true },
+        _device: { type: String, state: true },
         _entities: { type: Array, state: true }
     };
 
     static styles =  new CSSStyleSheet({ baseURL: "./styles.css" });
 
     setConfig(config : SimplePlantCardConfig) {
-        if (!config.name) {
+        if (!config.device) {
             throw new Error("You need to define a name");
         }
-        this._name = config.name;
+        this._device = config.device;
         // while editing the entity in the card editor
         if (this._hass) {
             this.hass = this._hass
@@ -42,14 +41,19 @@ export class SimplePlantCard extends LitElement {
     // Create card and its content
     render() {
         return html`
-            <ha-card">
+            <ha-card>
                 <div class="card-content">
-                    TEST CONTENT
+                    ${this._device}
                 </div>
             </ha-card>
         `;
     }
 
+
+    static getConfigElement() {
+        // Create and return an editor element
+        return document.createElement(`${CARD_TYPE}-editor`);
+    }
 
     getCardSize() {
         return 1;

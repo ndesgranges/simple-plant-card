@@ -1,4 +1,5 @@
 import { SimplePlantCard } from "./card";
+import { SimplePlantCardEditor } from "./editor";
 import {
     CARD_TYPE,
     CARD_NAME,
@@ -13,6 +14,7 @@ console.info(
     "color: green;",
 );
 
+customElements.define(`${CARD_TYPE}-editor`, SimplePlantCardEditor);
 customElements.define(CARD_TYPE, SimplePlantCard);
 
 // Define Window.customCards type for TS not to complain
