@@ -4,6 +4,6 @@
         "isolatedModules": true,
         "experimentalDecorators": true,
         "useDefineForClassFields": false,
-        "target": "es2017",
+        "target": "es2020",
     }
 }

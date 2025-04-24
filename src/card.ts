@@ -1,7 +1,9 @@
 import { HassEntity } from "home-assistant-js-websocket";
 import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";``
 import { html, LitElement } from 'lit';
-import { CARD_TYPE } from "./consts"
+import { CARD_TYPE, INTEGRATION } from "./consts"
+import { styles } from "./styles";
+import { relativeDate } from "./date"
 
 
 // TYPES
@@ -12,6 +14,7 @@ interface Dictionary<T> {
 
 interface Entity extends HassEntity {
     device_id: string
+    translation_key: string
 }
 interface Device {
     id: string,
@@ -21,6 +24,9 @@ interface Device {
 interface HomeAssistant2 extends HomeAssistant {
     entities: Array<Entity>
     devices: Array<Device>
+    states: {
+        [entity_id: string]: Entity;
+    }
 }
 
 
@@ -33,14 +39,21 @@ export class SimplePlantCard extends LitElement {
     // properties
     private _hass : HomeAssistant2;
 
+    // reactive
     private _device_id: string;
+    private _translations_loaded: boolean = false;
+    private _states_updated: boolean = true ;
+
+    // other private
     private _device_name: string;
     private _entity_ids: Dictionary<string> = {} ;
-    private _entity_states: Map<string, HassEntity> = new Map() ;
-
-
+    private _entity_states: Map<string, Entity> = new Map() ;
     private _config_updated: boolean = true ;
-    private _states_updated: boolean = true ;
+    private _translations : Dictionary<string> = {
+        "button": "Mark as Watered !",
+        "cancel": "Cancel",
+        "today": "today"
+    }
 
     static keys : Array<string> = [
         "mark_watered",
@@ -64,6 +77,7 @@ export class SimplePlantCard extends LitElement {
 
     static properties = {
         _device_id: { type: String, state: true },
+        _translations_loaded: { type: Boolean, state: true },
         _states_updated: {
             type: Boolean,
             state: true,
@@ -73,12 +87,11 @@ export class SimplePlantCard extends LitElement {
         }
     };
 
-    static styles =  new CSSStyleSheet({ baseURL: "./styles.css" });
+    static styles =  styles;
 
 
     setConfig(config : SimplePlantCardConfig) {
         // Triggers everytime the config of the card change
-        console.log("simple-plant: checking config")
         if (!config.device) {
             throw new Error("You need to define a name");
         }
@@ -90,10 +103,23 @@ export class SimplePlantCard extends LitElement {
         this._config_updated = true;
     }
 
+    _moreInfo(entity_key: string){
+        const event = new CustomEvent("hass-more-info", {
+            bubbles: true,
+            composed: true,
+            detail: {
+                entityId: this._entity_ids[entity_key],
+                view: 'info',
+            }
+        });
+
+
+        this.dispatchEvent(event);
+    }
+
     // Create card and its content
     render() {
         // Triggers everytime one of the variables in properties changes
-        console.log("simple-plant : render")
         // getting entities ids
         if(this._config_updated) {
             this._get_friendly_name();
@@ -104,23 +130,67 @@ export class SimplePlantCard extends LitElement {
         if(!this._entity_states.size)
             this._update_entites()
         this._states_updated = false;
-        // console.log(this._entity_states.get("picture"))
+        this._loadTranslations()
+        // compute strings
+        const health_key_prefix = "component.simple_plant.entity.select.health.state"
+        const health_key = `${health_key_prefix}.${this._entity_states.get("health").state}`
+        const health = this._hass.localize(health_key)
+
+        const days_between_label = this._entity_states.get("days_between_waterings").attributes.friendly_name
+        const days_between_value = parseInt(this._entity_states.get("days_between_waterings").state)
+
+        const local = this._hass.language
+        const next_date = this._entity_states.get("next_watering").state;
+        const today = this._translations["today"]
+        const next_watering = relativeDate(next_date, local, today)
         // return card
         return html`
             <ha-card>
                 <div class="card-content">
-                    <hui-image
-                        .hass=${this._hass}
-                        .entity=${this._entity_ids["picture"]}
-                    ></hui-image>
-                    ${this._device_name}
-                    <!-- <p>mark_watered : ${this._entity_states.get("mark_watered").state}</p> -->
-                    <p>todo : ${this._entity_states.get("todo").state}</p>
-                    <p>problem : ${this._entity_states.get("problem").state}</p>
-                    <p>last_watered : ${this._entity_states.get("last_watered").state}</p>
-                    <p>days_between_waterings : ${this._entity_states.get("days_between_waterings").state}</p>
-                    <p>health : ${this._entity_states.get("health").state}</p>
-                    <p>next_watering : ${this._entity_states.get("next_watering").state}</p>
+                    <div class="img-header"></div>
+                        <hui-image
+                            .hass=${this._hass}
+                            .entity=${this._entity_ids["picture"]}
+                            .fitMode=${"cover"}
+                        ></hui-image>
+                        <ha-icon-button
+                            .label=${days_between_label}
+                            @click="${() => this._moreInfo("days_between_waterings")}"
+                        >
+                            <ha-icon
+                                data-days="${days_between_value}"
+                                .icon=${"mdi:calendar-blank"
+                            }></ha-icon>
+                        </ha-icon-button>
+                    </div>
+                    <div class="info">
+                        <h1>${this._device_name}</h1>
+                        <div class="row">
+                            <ha-icon
+                                .icon=${"mdi:watering-can"}
+                            ></ha-icon>
+                            <div class="content" @click="${() => this._moreInfo("last_watered")}">
+                                <p>${next_watering}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <ha-icon
+                                .icon=${"mdi:heart-pulse"}
+                            ></ha-icon>
+                            <div class="content" @click="${() => this._moreInfo("health")}">
+                                <p>${health}</p>
+                            </div>
+                        </div>
+                        <!--
+                        <p class="test">todo : ${this._entity_states.get("todo").state}</p>
+                        <p>problem : ${this._entity_states.get("problem").state}</p>
+                        -->
+
+                        <ha-button
+                            @click="${this._handleButton}"
+                            .label=${this._translations["button"]}
+                        ></ha-button>
+                    </div>
                 </div>
             </ha-card>
         `;
@@ -142,19 +212,22 @@ export class SimplePlantCard extends LitElement {
             rows: 3,
             columns: 6,
             min_rows: 3,
+            min_columns: 6,
             max_rows: 3,
         };
     }
 
     // Specific to Simple Plant
 
+    _handleButton() {
+        this._hass.callService("button", "press", {}, {entity_id: this._entity_ids["mark_watered"]})
+    }
+
     _update_entites() {
         // Update values of entities that got updated
         var trigger_update = false;
-        console.log("Simple Plant Card: _update_entites")
         if (!this._entity_ids || !this._hass)
             return
-        console.log("Simple Plant Card: Updating entities")
         for (const [key, id] of Object.entries(this._entity_ids)) {
 
             if (
@@ -184,7 +257,6 @@ export class SimplePlantCard extends LitElement {
 
     _fetch_entities() {
         // Get entities from given device
-        console.log("simple-plant: fetching entities")
         if(!this._device_id || !this._hass)
             return
         const entities = Object.values(this._hass.entities)
@@ -202,4 +274,13 @@ export class SimplePlantCard extends LitElement {
     }
 
 
+    async _loadTranslations(){
+        if (!this._entity_states.size || this._translations_loaded)
+            return
+        const translation_key = `component.${INTEGRATION}.entity.button.mark_watered.name`
+        this._translations["button"] = `${this._hass.localize(translation_key)} !`
+        this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel")
+        this._translations["today"] = this._hass.localize("ui.components.calendar.today")
+        this._translations_loaded = true
+    }
 }
