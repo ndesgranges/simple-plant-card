@@ -623,8 +623,9 @@ const $3cb55e3e7ebd776a$export$6af2e7fd4d06fd68 = "ndesgranges";
 
 
 const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$dbf350e5966cf602)`
-    .test {
-        color: red;
+    .hidden {
+        display: none;
+        /* opacity: 0; */
     }
 
     .card-content {
@@ -634,6 +635,27 @@ const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
 
     .info {
         padding: 16px;
+    }
+
+    .row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 16px;
+    }
+
+    .content {
+        position: relative;
+    }
+
+    .sub {
+        position: absolute;
+        top:0;
+        left: 0;
+        transform: translateY(100%);
+        color: var(--secondary-text-color);
+        font-size: 12px;
     }
 
     h1 {
@@ -650,55 +672,54 @@ const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
         width: 100%;
     }
 
-    .row {
+
+    ha-icon {
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 16px;
+        position: relative;
     }
+
+    ha-icon[data-color] {
+        color: var(--color);
+    }
+
+
 
     ha-icon-button {
         position: absolute;
         bottom: 8px;
         right: 8px;
+        background-color: rgba(var(--rgb-card-background-color), 0.1);
+        border-radius: 48px;
     }
 
     ha-icon-button ha-icon::after {
         content: attr(data-days, "");
         position: absolute;
-        top: 24px;
+        top: calc( 50% + 1px );
         left: 0px;
+        transform: translateY(-50%);
         width: 100%;
         font-size: 10px;
     }
-
-
-    /* .img-header span {
-        position: absolute;
-        bottom: 8px;
-        right: 8px;
-        background: rgba(0,0,0,0.3);
-        padding: 4px;
-    } */
 `;
 
 
+//---- DATE ----
 // https://stackoverflow.com/a/15289883/13597384
-function $7700669d6b3be29b$var$dateDiffInDays(a, b) {
+function $feccc7a5980a21d5$var$dateDiffInDays(a, b) {
     const _MS_PER_DAY = 86400000;
     // Discard the time and time-zone information.
     const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
     const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
     return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 }
-function $7700669d6b3be29b$var$relativeDays(isoDateString) {
+function $feccc7a5980a21d5$var$relativeDays(isoDateString) {
     const today = new Date(Date.now());
     const dateB = new Date(Date.parse(isoDateString));
-    return $7700669d6b3be29b$var$dateDiffInDays(today, dateB);
+    return $feccc7a5980a21d5$var$dateDiffInDays(today, dateB);
 }
-function $7700669d6b3be29b$export$6270e84457db9b38(isoDateString, local = "en", today = "today") {
-    const diff_days = $7700669d6b3be29b$var$relativeDays(isoDateString);
+function $feccc7a5980a21d5$export$6270e84457db9b38(isoDateString, local = "en", today = "today") {
+    const diff_days = $feccc7a5980a21d5$var$relativeDays(isoDateString);
     const relativeTimeFormat = new Intl.RelativeTimeFormat(local, {
         style: "long"
     });
@@ -720,13 +741,13 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
             "next_watering"
         ];
     }
-    // Base Card
     set hass(hass) {
         // Triggered everytime a state change and more
         this._hass = hass;
         this._update_entites();
     }
     static{
+        // Reactive properties, a change on one of those triggers a re-render
         this.properties = {
             _device_id: {
                 type: String,
@@ -740,7 +761,8 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
                 type: Boolean,
                 state: true,
                 hasChanged (newVal, _oldVal) {
-                    return newVal;
+                    return newVal // Only re-render if _states_updated is true
+                    ;
                 }
             }
         };
@@ -769,27 +791,31 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
     }
     // Create card and its content
     render() {
-        // Triggers everytime one of the variables in properties changes
-        // getting entities ids
         if (this._config_updated) {
+            // Re fetching device specific information
             this._get_friendly_name();
             this._fetch_entities();
             this._config_updated = false;
         }
         // Updating states
         if (!this._entity_states.size) this._update_entites();
-        this._states_updated = false;
+        this._states_updated = false; // resetting for future use
         this._loadTranslations();
         // compute strings
         const health_key_prefix = "component.simple_plant.entity.select.health.state";
         const health_key = `${health_key_prefix}.${this._entity_states.get("health").state}`;
         const health = this._hass.localize(health_key);
+        const healthColor = this._entity_states.get("health").attributes.color;
         const days_between_label = this._entity_states.get("days_between_waterings").attributes.friendly_name;
         const days_between_value = parseInt(this._entity_states.get("days_between_waterings").state);
         const local = this._hass.language;
         const next_date = this._entity_states.get("next_watering").state;
         const today = this._translations["today"];
-        const next_watering = (0, $7700669d6b3be29b$export$6270e84457db9b38)(next_date, local, today);
+        const next_watering = (0, $feccc7a5980a21d5$export$6270e84457db9b38)(next_date, local, today);
+        const watering_can_color = this._entity_states.get("next_watering").attributes.color;
+        const late = this._entity_states.get("problem").state === "on";
+        const next_watering_class = late ? "sub" : "";
+        const late_class = late ? "" : "hidden";
         // return card
         return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
             <ha-card>
@@ -813,15 +839,20 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
                         <h1>${this._device_name}</h1>
                         <div class="row">
                             <ha-icon
+                                data-color
+                                style="--color: ${watering_can_color};"
                                 .icon=${"mdi:watering-can"}
                             ></ha-icon>
                             <div class="content" @click="${()=>this._moreInfo("last_watered")}">
-                                <p>${next_watering}</p>
+                                <p class="${late_class}">${this._translations["late"]} !</p>
+                                <p class="${next_watering_class}">${next_watering}</p>
                             </div>
                         </div>
                         <div class="row">
                             <ha-icon
                                 .icon=${"mdi:heart-pulse"}
+                                data-color
+                                style="--color: ${healthColor};"
                             ></ha-icon>
                             <div class="content" @click="${()=>this._moreInfo("health")}">
                                 <p>${health}</p>
@@ -842,20 +873,21 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         `;
     }
     static getConfigElement() {
-        // Create and return an editor element
+        // Create and return an editor element for UI card edition
         return document.createElement(`${(0, $3cb55e3e7ebd776a$export$31089ea8b3e502e3)}-editor`);
     }
     getCardSize() {
-        return 1;
+        return 10;
     }
     // The rules for sizing your card in the grid in sections view
+    // https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card/#sizing-in-sections-view
     getGridOptions() {
         return {
-            rows: 3,
             columns: 6,
-            min_rows: 3,
             min_columns: 6,
-            max_rows: 3
+            max_columns: 9,
+            min_rows: 8,
+            max_rows: 8
         };
     }
     // Specific to Simple Plant
@@ -900,6 +932,7 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         this._translations["button"] = `${this._hass.localize(translation_key)} !`;
         this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel");
         this._translations["today"] = this._hass.localize("ui.components.calendar.today");
+        this._translations["late"] = this._hass.localize(`component.${(0, $3cb55e3e7ebd776a$export$a970e6ec17c9a61d)}.entity.binary_sensor.problem.name`);
         this._translations_loaded = true;
     }
     constructor(...args){
