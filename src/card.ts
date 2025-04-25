@@ -107,6 +107,7 @@ export class SimplePlantCard extends LitElement {
         const health_key_prefix = "component.simple_plant.entity.select.health.state"
         const health_key = `${health_key_prefix}.${this._entity_states.get("health").state}`
         const health = this._hass.localize(health_key)
+        const healthColor = this._entity_states.get("health").attributes.color
 
         const days_between_label = this._entity_states.get("days_between_waterings").attributes.friendly_name
         const days_between_value = parseInt(this._entity_states.get("days_between_waterings").state)
@@ -115,6 +116,7 @@ export class SimplePlantCard extends LitElement {
         const next_date = this._entity_states.get("next_watering").state;
         const today = this._translations["today"];
         const next_watering = relativeDate(next_date, local, today);
+        const watering_can_color = this._entity_states.get("next_watering").attributes.color
 
         const late = this._entity_states.get("problem").state === "on";
         const next_watering_class = late ? "sub" : "";
@@ -144,6 +146,8 @@ export class SimplePlantCard extends LitElement {
                         <h1>${this._device_name}</h1>
                         <div class="row">
                             <ha-icon
+                                data-color
+                                style="--color: ${watering_can_color};"
                                 .icon=${"mdi:watering-can"}
                             ></ha-icon>
                             <div class="content" @click="${() => this._moreInfo("last_watered")}">
@@ -154,6 +158,8 @@ export class SimplePlantCard extends LitElement {
                         <div class="row">
                             <ha-icon
                                 .icon=${"mdi:heart-pulse"}
+                                data-color
+                                style="--color: ${healthColor};"
                             ></ha-icon>
                             <div class="content" @click="${() => this._moreInfo("health")}">
                                 <p>${health}</p>

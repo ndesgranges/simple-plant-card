@@ -56,6 +56,12 @@ export const styles = css`
         position: relative;
     }
 
+    ha-icon[data-color] {
+        color: var(--color);
+    }
+
+
+
     ha-icon-button {
         position: absolute;
         bottom: 8px;
