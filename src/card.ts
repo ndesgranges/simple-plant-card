@@ -209,11 +209,11 @@ export class SimplePlantCard extends LitElement {
     // The rules for sizing your card in the grid in sections view
     getGridOptions() {
         return {
-            rows: 3,
             columns: 6,
-            min_rows: 3,
             min_columns: 6,
-            max_rows: 3,
+            max_columns: 9,
+            min_rows: 8,
+            max_rows: 8,
         };
     }
 

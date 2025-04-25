@@ -36,27 +36,26 @@ export const styles = css`
         gap: 16px;
     }
 
+    ha-icon {
+        display: flex;
+        position: relative;
+    }
+
     ha-icon-button {
         position: absolute;
         bottom: 8px;
         right: 8px;
+        background-color: rgba(var(--rgb-card-background-color), 0.1);
+        border-radius: 48px;
     }
 
     ha-icon-button ha-icon::after {
         content: attr(data-days, "");
         position: absolute;
-        top: 24px;
+        top: calc( 50% + 1px );
         left: 0px;
+        transform: translateY(-50%);
         width: 100%;
         font-size: 10px;
     }
-
-
-    /* .img-header span {
-        position: absolute;
-        bottom: 8px;
-        right: 8px;
-        background: rgba(0,0,0,0.3);
-        padding: 4px;
-    } */
 `
