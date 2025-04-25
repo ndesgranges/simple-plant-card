@@ -688,7 +688,7 @@ const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
         position: absolute;
         bottom: 8px;
         right: 8px;
-        background-color: rgba(var(--rgb-card-background-color), 0.1);
+        background-color: rgba(var(--rgb-card-background-color), 0.2);
         border-radius: 48px;
     }
 
@@ -816,6 +816,9 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         const late = this._entity_states.get("problem").state === "on";
         const next_watering_class = late ? "sub" : "";
         const late_class = late ? "" : "hidden";
+        const last_date = this._entity_states.get("last_watered").state;
+        const last_watered = (0, $feccc7a5980a21d5$export$6270e84457db9b38)(last_date, local, today);
+        const button_label = last_watered === today ? this._translations["cancel"] : this._translations["button"];
         // return card
         return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
             <ha-card>
@@ -858,14 +861,10 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
                                 <p>${health}</p>
                             </div>
                         </div>
-                        <!--
-                        <p class="test">todo : ${this._entity_states.get("todo").state}</p>
-                        <p>problem : ${this._entity_states.get("problem").state}</p>
-                        -->
 
                         <ha-button
                             @click="${this._handleButton}"
-                            .label=${this._translations["button"]}
+                            .label=${button_label}
                         ></ha-button>
                     </div>
                 </div>
