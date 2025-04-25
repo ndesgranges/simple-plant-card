@@ -1,33 +1,9 @@
-import { HassEntity } from "home-assistant-js-websocket";
-import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";``
+import { LovelaceCardConfig } from "custom-card-helpers";``
 import { html, LitElement } from 'lit';
 import { CARD_TYPE, INTEGRATION } from "./consts"
 import { styles } from "./styles";
-import { relativeDate } from "./date"
 
-
-// TYPES
-
-interface Dictionary<T> {
-    [Key: string]: T;
-}
-
-interface Entity extends HassEntity {
-    device_id: string
-    translation_key: string
-}
-interface Device {
-    id: string,
-    name: string
-}
-
-interface HomeAssistant2 extends HomeAssistant {
-    entities: Array<Entity>
-    devices: Array<Device>
-    states: {
-        [entity_id: string]: Entity;
-    }
-}
+import { HomeAssistant2, Dictionary, Entity, relativeDate } from "./helpers"
 
 
 export interface SimplePlantCardConfig extends LovelaceCardConfig {
@@ -66,15 +42,13 @@ export class SimplePlantCard extends LitElement {
         "next_watering",
     ]
 
-
-    // Base Card
-
     set hass(hass : HomeAssistant2) {
         // Triggered everytime a state change and more
         this._hass = hass
         this._update_entites()
     }
 
+    // Reactive properties, a change on one of those triggers a re-render
     static properties = {
         _device_id: { type: String, state: true },
         _translations_loaded: { type: Boolean, state: true },
@@ -82,13 +56,12 @@ export class SimplePlantCard extends LitElement {
             type: Boolean,
             state: true,
             hasChanged(newVal: boolean, _oldVal: boolean){
-                return newVal
+                return newVal // Only re-render if _states_updated is true
             }
         }
     };
 
     static styles =  styles;
-
 
     setConfig(config : SimplePlantCardConfig) {
         // Triggers everytime the config of the card change
@@ -119,9 +92,8 @@ export class SimplePlantCard extends LitElement {
 
     // Create card and its content
     render() {
-        // Triggers everytime one of the variables in properties changes
-        // getting entities ids
         if(this._config_updated) {
+            // Re fetching device specific information
             this._get_friendly_name();
             this._fetch_entities();
             this._config_updated = false;
@@ -129,7 +101,7 @@ export class SimplePlantCard extends LitElement {
         // Updating states
         if(!this._entity_states.size)
             this._update_entites()
-        this._states_updated = false;
+        this._states_updated = false; // resetting for future use
         this._loadTranslations()
         // compute strings
         const health_key_prefix = "component.simple_plant.entity.select.health.state"
@@ -141,8 +113,13 @@ export class SimplePlantCard extends LitElement {
 
         const local = this._hass.language
         const next_date = this._entity_states.get("next_watering").state;
-        const today = this._translations["today"]
-        const next_watering = relativeDate(next_date, local, today)
+        const today = this._translations["today"];
+        const next_watering = relativeDate(next_date, local, today);
+
+        const late = this._entity_states.get("problem").state === "on";
+        const next_watering_class = late ? "sub" : "";
+        const late_class = late ? "" : "hidden";
+
         // return card
         return html`
             <ha-card>
@@ -170,7 +147,8 @@ export class SimplePlantCard extends LitElement {
                                 .icon=${"mdi:watering-can"}
                             ></ha-icon>
                             <div class="content" @click="${() => this._moreInfo("last_watered")}">
-                                <p>${next_watering}</p>
+                                <p class="${late_class}">${this._translations["late"]} !</p>
+                                <p class="${next_watering_class}">${next_watering}</p>
                             </div>
                         </div>
                         <div class="row">
@@ -198,15 +176,16 @@ export class SimplePlantCard extends LitElement {
 
 
     static getConfigElement() {
-        // Create and return an editor element
+        // Create and return an editor element for UI card edition
         return document.createElement(`${CARD_TYPE}-editor`);
     }
 
     getCardSize() {
-        return 1;
+        return 10;
     }
 
     // The rules for sizing your card in the grid in sections view
+    // https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card/#sizing-in-sections-view
     getGridOptions() {
         return {
             columns: 6,
@@ -281,6 +260,7 @@ export class SimplePlantCard extends LitElement {
         this._translations["button"] = `${this._hass.localize(translation_key)} !`
         this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel")
         this._translations["today"] = this._hass.localize("ui.components.calendar.today")
+        this._translations["late"] = this._hass.localize(`component.${INTEGRATION}.entity.binary_sensor.problem.name`)
         this._translations_loaded = true
     }
 }

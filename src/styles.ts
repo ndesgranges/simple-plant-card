@@ -1,8 +1,9 @@
 import { css } from "lit";
 
 export const styles = css`
-    .test {
-        color: red;
+    .hidden {
+        display: none;
+        /* opacity: 0; */
     }
 
     .card-content {
@@ -12,6 +13,27 @@ export const styles = css`
 
     .info {
         padding: 16px;
+    }
+
+    .row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 16px;
+    }
+
+    .content {
+        position: relative;
+    }
+
+    .sub {
+        position: absolute;
+        top:0;
+        left: 0;
+        transform: translateY(100%);
+        color: var(--secondary-text-color);
+        font-size: 12px;
     }
 
     h1 {
@@ -28,13 +50,6 @@ export const styles = css`
         width: 100%;
     }
 
-    .row {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 16px;
-    }
 
     ha-icon {
         display: flex;
