@@ -1,3 +1,34 @@
+import { HassEntity } from "home-assistant-js-websocket";
+import { HomeAssistant, LovelaceCardConfig } from "custom-card-helpers";``
+
+
+//---- TYPES ----
+
+// TYPES
+
+export interface Dictionary<T> {
+    [Key: string]: T;
+}
+
+export interface Entity extends HassEntity {
+    device_id: string
+    translation_key: string
+}
+
+interface Device {
+    id: string,
+    name: string
+}
+
+export interface HomeAssistant2 extends HomeAssistant {
+    entities: Array<Entity>
+    devices: Array<Device>
+    states: {
+        [entity_id: string]: Entity;
+    }
+}
+
+//---- DATE ----
 
 // https://stackoverflow.com/a/15289883/13597384
 function dateDiffInDays(a: Date, b: Date) {
