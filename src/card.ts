@@ -122,6 +122,10 @@ export class SimplePlantCard extends LitElement {
         const next_watering_class = late ? "sub" : "";
         const late_class = late ? "" : "hidden";
 
+        const last_date = this._entity_states.get("last_watered").state;
+        const last_watered = relativeDate(last_date, local, today)
+        const button_label = last_watered === today ? this._translations["cancel"] : this._translations["button"]
+
         // return card
         return html`
             <ha-card>
@@ -165,14 +169,10 @@ export class SimplePlantCard extends LitElement {
                                 <p>${health}</p>
                             </div>
                         </div>
-                        <!--
-                        <p class="test">todo : ${this._entity_states.get("todo").state}</p>
-                        <p>problem : ${this._entity_states.get("problem").state}</p>
-                        -->
 
                         <ha-button
                             @click="${this._handleButton}"
-                            .label=${this._translations["button"]}
+                            .label=${button_label}
                         ></ha-button>
                     </div>
                 </div>
