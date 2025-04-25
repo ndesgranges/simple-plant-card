@@ -66,7 +66,7 @@ export const styles = css`
         position: absolute;
         bottom: 8px;
         right: 8px;
-        background-color: rgba(var(--rgb-card-background-color), 0.1);
+        background-color: rgba(var(--rgb-card-background-color), 0.2);
         border-radius: 48px;
     }
 
