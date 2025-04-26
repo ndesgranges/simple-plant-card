@@ -25,6 +25,13 @@ export const styles = css`
 
     .content {
         position: relative;
+        overflow: hidden;
+    }
+
+    .content p {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     .sub {
@@ -36,8 +43,22 @@ export const styles = css`
         font-size: 12px;
     }
 
+
     h1 {
         font-weight: normal;
+        font-size: 24px;
+
+        margin-top: 8px;
+        margin-bottom: 0px;
+        line-height: 24px;
+        height: 48px;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
     hui-image {
@@ -48,6 +69,7 @@ export const styles = css`
 
     ha-button {
         width: 100%;
+        margin-top: 8px;
     }
 
 
