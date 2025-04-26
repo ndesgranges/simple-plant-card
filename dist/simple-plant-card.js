@@ -617,7 +617,7 @@ const $3cb55e3e7ebd776a$export$a970e6ec17c9a61d = "simple_plant";
 const $3cb55e3e7ebd776a$export$31089ea8b3e502e3 = "simple-plant-card";
 const $3cb55e3e7ebd776a$export$112ee299e69fdf7 = "Simple Plant Card";
 const $3cb55e3e7ebd776a$export$ce612590f71e0c8a = "Custom card for simple-plant integration";
-const $3cb55e3e7ebd776a$export$d5e7ce6d07daf10f = "v1.0.0";
+const $3cb55e3e7ebd776a$export$d5e7ce6d07daf10f = "v1.2.1";
 const $3cb55e3e7ebd776a$export$6af2e7fd4d06fd68 = "ndesgranges";
 
 
@@ -647,6 +647,13 @@ const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
 
     .content {
         position: relative;
+        overflow: hidden;
+    }
+
+    .content p {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     .sub {
@@ -658,8 +665,22 @@ const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
         font-size: 12px;
     }
 
+
     h1 {
         font-weight: normal;
+        font-size: 24px;
+
+        margin-top: 8px;
+        margin-bottom: 0px;
+        line-height: 24px;
+        height: 48px;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
     hui-image {
@@ -670,6 +691,7 @@ const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
 
     ha-button {
         width: 100%;
+        margin-top: 8px;
     }
 
 
@@ -789,6 +811,10 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         });
         this.dispatchEvent(event);
     }
+    _navigateToDevice(deviceId) {
+        window.history.pushState(null, "", `/config/devices/device/${deviceId}`);
+        window.dispatchEvent(new Event("location-changed"));
+    }
     // Create card and its content
     render() {
         if (this._config_updated) {
@@ -828,6 +854,7 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
                             .hass=${this._hass}
                             .entity=${this._entity_ids["picture"]}
                             .fitMode=${"cover"}
+                            @click="${()=>this._moreInfo("picture")}"
                         ></hui-image>
                         <ha-icon-button
                             .label=${days_between_label}
@@ -839,7 +866,9 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
                         </ha-icon-button>
                     </div>
                     <div class="info">
-                        <h1>${this._device_name}</h1>
+                        <h1 @click="${()=>this._navigateToDevice(this._device_id)}">
+                            ${this._device_name}
+                        </h1>
                         <div class="row">
                             <ha-icon
                                 data-color
