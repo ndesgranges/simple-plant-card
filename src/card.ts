@@ -90,6 +90,11 @@ export class SimplePlantCard extends LitElement {
         this.dispatchEvent(event);
     }
 
+    _navigateToDevice(deviceId: string) {
+        window.history.pushState(null, "", `/config/devices/device/${deviceId}`);
+        window.dispatchEvent(new Event("location-changed"));
+    }
+
     // Create card and its content
     render() {
         if(this._config_updated) {
@@ -135,6 +140,7 @@ export class SimplePlantCard extends LitElement {
                             .hass=${this._hass}
                             .entity=${this._entity_ids["picture"]}
                             .fitMode=${"cover"}
+                            @click="${() => this._moreInfo("picture")}"
                         ></hui-image>
                         <ha-icon-button
                             .label=${days_between_label}
@@ -147,7 +153,9 @@ export class SimplePlantCard extends LitElement {
                         </ha-icon-button>
                     </div>
                     <div class="info">
-                        <h1>${this._device_name}</h1>
+                        <h1 @click="${() => this._navigateToDevice(this._device_id)}">
+                            ${this._device_name}
+                        </h1>
                         <div class="row">
                             <ha-icon
                                 data-color
