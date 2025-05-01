@@ -617,7 +617,7 @@ const $3cb55e3e7ebd776a$export$a970e6ec17c9a61d = "simple_plant";
 const $3cb55e3e7ebd776a$export$31089ea8b3e502e3 = "simple-plant-card";
 const $3cb55e3e7ebd776a$export$112ee299e69fdf7 = "Simple Plant Card";
 const $3cb55e3e7ebd776a$export$ce612590f71e0c8a = "Custom card for simple-plant integration";
-const $3cb55e3e7ebd776a$export$d5e7ce6d07daf10f = "v1.2.1";
+const $3cb55e3e7ebd776a$export$d5e7ce6d07daf10f = "v1.2.2";
 const $3cb55e3e7ebd776a$export$6af2e7fd4d06fd68 = "ndesgranges";
 
 
@@ -928,9 +928,9 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         // Update values of entities that got updated
         var trigger_update = false;
         if (!this._entity_ids || !this._hass) return;
-        for (const [key, id] of Object.entries(this._entity_ids))if (!this._entity_states.has(key) || this._entity_states.get(key).state != this._hass.states[id].state) {
+        for (const [key, id] of Object.entries(this._entity_ids)){
+            if (!this._entity_states.has(key) || this._entity_states.get(key).state != this._hass.states[id].state) trigger_update = true;
             this._entity_states.set(key, this._hass.states[id]);
-            trigger_update = true;
         }
         if (trigger_update) this._states_updated = true;
     }
