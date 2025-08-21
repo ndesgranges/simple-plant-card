@@ -180,8 +180,7 @@ export class SimplePlantCard extends LitElement {
 
                         <ha-button
                             @click="${this._handleButton}"
-                            .label=${button_label}
-                        ></ha-button>
+                        >${button_label}</ha-button>
                     </div>
                 </div>
             </ha-card>
