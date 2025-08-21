@@ -617,7 +617,7 @@ const $3cb55e3e7ebd776a$export$a970e6ec17c9a61d = "simple_plant";
 const $3cb55e3e7ebd776a$export$31089ea8b3e502e3 = "simple-plant-card";
 const $3cb55e3e7ebd776a$export$112ee299e69fdf7 = "Simple Plant Card";
 const $3cb55e3e7ebd776a$export$ce612590f71e0c8a = "Custom card for simple-plant integration";
-const $3cb55e3e7ebd776a$export$d5e7ce6d07daf10f = "v1.2.2";
+const $3cb55e3e7ebd776a$export$d5e7ce6d07daf10f = "v1.2.3";
 const $3cb55e3e7ebd776a$export$6af2e7fd4d06fd68 = "ndesgranges";
 
 
@@ -893,8 +893,7 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
 
                         <ha-button
                             @click="${this._handleButton}"
-                            .label=${button_label}
-                        ></ha-button>
+                        >${button_label}</ha-button>
                     </div>
                 </div>
             </ha-card>
