@@ -67,6 +67,25 @@ export const styles = css`
         overflow: hidden;
     }
 
+    .img-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        /* height: 24px; */
+        padding-top: 8px;
+        padding-bottom: 8px;
+        background-color: rgba(var(--rgb-primary-color), 0.5);
+        border-radius: var(--ha-card-border-radius,12px);
+        overflow: hidden;
+    }
+
+    .img-placeholder ha-icon {
+        --mdc-icon-size: 48px;
+        color: rgba(var(--rgb-primary-color), 0.8);
+
+    }
+
     ha-button {
         width: 100%;
         margin-top: 8px;

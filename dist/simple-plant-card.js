@@ -689,6 +689,25 @@ const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
         overflow: hidden;
     }
 
+    .img-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        /* height: 24px; */
+        padding-top: 8px;
+        padding-bottom: 8px;
+        background-color: rgba(var(--rgb-primary-color), 0.5);
+        border-radius: var(--ha-card-border-radius,12px);
+        overflow: hidden;
+    }
+
+    .img-placeholder ha-icon {
+        --mdc-icon-size: 48px;
+        color: rgba(var(--rgb-primary-color), 0.8);
+
+    }
+
     ha-button {
         width: 100%;
         margin-top: 8px;
@@ -860,12 +879,18 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
             <ha-card>
                 <div class="card-content">
                     <div class="img-header"></div>
-                        <hui-image
-                            .hass=${this._hass}
-                            .entity=${this._entity_ids["picture"]}
-                            .fitMode=${"cover"}
-                            @click="${()=>this._moreInfo("picture")}"
-                        ></hui-image>
+                        ${this._entity_ids["picture"] ? (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+                            <hui-image
+                                .hass=${this._hass}
+                                .entity=${this._entity_ids["picture"]}
+                                .fitMode=${"cover"}
+                                @click="${()=>this._moreInfo("picture")}"
+                            ></hui-image>` : (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+                            <div class="img-placeholder">
+                                <ha-icon
+                                    .icon=${"mdi:spa-outline"}
+                                ></ha-icon>
+                            </div>`}
                         <ha-icon-button
                             .label=${days_between_label}
                             @click="${()=>this._moreInfo("days_between_waterings")}"
