@@ -8,12 +8,14 @@ import { HomeAssistant2, Dictionary, Entity, relativeDate } from "./helpers"
 
 export interface SimplePlantCardConfig extends LovelaceCardConfig {
   device: string;
+  show_fertilization?: boolean;
 }
 
 export class SimplePlantCard extends LitElement {
 
     // properties
     private _hass : HomeAssistant2;
+    private _config: SimplePlantCardConfig;
 
     // reactive
     private _device_id: string;
@@ -33,13 +35,18 @@ export class SimplePlantCard extends LitElement {
 
     static keys : Array<string> = [
         "mark_watered",
+        "mark_fertilized",
         "todo",
         "problem",
+        "fertilize_todo",
         "last_watered",
+        "last_fertilized",
         "picture",
         "days_between_waterings",
+        "days_between_fertilizations",
         "health",
         "next_watering",
+        "next_fertilization",
     ]
 
     set hass(hass : HomeAssistant2) {
@@ -68,6 +75,7 @@ export class SimplePlantCard extends LitElement {
         if (!config.device) {
             throw new Error("You need to define a name");
         }
+        this._config = config;
         this._device_id = config.device;
         // while editing the entity in the card editor
         if (this._hass) {
@@ -143,6 +151,16 @@ export class SimplePlantCard extends LitElement {
         const last_watered = relativeDate(last_date, local, today)
         const button_label = last_watered === today ? this._translations["cancel"] : this._translations["button"]
 
+        // Fertilization (optional)
+        const show_fert = this._config?.show_fertilization && this._entity_states.get("next_fertilization");
+        let next_fertilization = "";
+        let fert_color = "";
+        if (show_fert) {
+            const fert_date = this._entity_states.get("next_fertilization").state;
+            next_fertilization = relativeDate(fert_date, local, today);
+            fert_color = this._entity_states.get("next_fertilization").attributes.color || "";
+        }
+
         // return card
         return html`
             <ha-card>
@@ -198,6 +216,19 @@ export class SimplePlantCard extends LitElement {
                             </div>
                         </div>
 
+                        ${show_fert ? html`
+                        <div class="row">
+                            <ha-icon
+                                data-color
+                                style="--color: ${fert_color};"
+                                .icon=${"mdi:sprout"}
+                            ></ha-icon>
+                            <div class="content" @click="${() => this._moreInfo("last_fertilized")}">
+                                <p>${next_fertilization}</p>
+                            </div>
+                        </div>
+                        ` : ""}
+
                         <ha-button
                             @click="${this._handleButton}"
                         >${button_label}</ha-button>
@@ -249,14 +280,23 @@ export class SimplePlantCard extends LitElement {
         if (!this._entity_ids || !this._hass)
             return
         for (const [key, id] of Object.entries(this._entity_ids)) {
+            const state = this._hass.states[id];
+            if (!state) {
+                // Entity was removed (e.g. fertilization disabled)
+                if (this._entity_states.has(key)) {
+                    this._entity_states.delete(key);
+                    trigger_update = true;
+                }
+                continue;
+            }
 
             if (
                 (!this._entity_states.has(key))
-                || (this._entity_states.get(key).state != this._hass.states[id].state)
+                || (this._entity_states.get(key).state != state.state)
             ) {
                 trigger_update = true
             }
-            this._entity_states.set(key, this._hass.states[id])
+            this._entity_states.set(key, state)
         }
         if(trigger_update)
             this._states_updated = true

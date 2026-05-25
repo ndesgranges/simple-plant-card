@@ -10,6 +10,7 @@ export class SimplePlantCardEditor extends LitElement {
 
     static schema = [
         {name: "device", selector: { device: { integration: INTEGRATION} }},
+        {name: "show_fertilization", selector: { boolean: {} }},
     ]
 
     static properties = {
@@ -30,8 +31,7 @@ export class SimplePlantCardEditor extends LitElement {
         if (!this._config || !this._hass) {
         return;
         }
-        const _config = Object.assign({}, this._config);
-        _config.device = ev.detail.value.device;
+        const _config = Object.assign({}, this._config, ev.detail.value);
 
         this._config = _config;
 
@@ -48,7 +48,8 @@ export class SimplePlantCardEditor extends LitElement {
         if (label) return label;
         label = this.hass?.localize(`ui.panel.lovelace.editor.card.${schema.label}`);
         if (label) return label;
-        return schema.label;
+        if (schema.name === "show_fertilization") return "Show fertilization";
+        return schema.name;
     };
 
     render() {
