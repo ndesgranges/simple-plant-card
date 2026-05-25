@@ -29,5 +29,6 @@ window.customCards = window.customCards || [];
 window.customCards.push({
     type: CARD_TYPE,
     name: CARD_NAME,
-    description: CARD_DESCRIPTION
+    description: CARD_DESCRIPTION,
+    preview: true,
 });

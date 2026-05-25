@@ -106,6 +106,18 @@ export class SimplePlantCard extends LitElement {
         // Updating states
         if(!this._entity_states.size)
             this._update_entites()
+        // Guard: if entities still aren't loaded, show a placeholder
+        if(!this._entity_states.size || !this._entity_states.get("health")) {
+            return html`
+                <ha-card>
+                    <div class="card-content">
+                        <div class="info">
+                            <h1>${this._device_name || "Simple Plant"}</h1>
+                        </div>
+                    </div>
+                </ha-card>
+            `;
+        }
         this._states_updated = false; // resetting for future use
         this._loadTranslations()
         // compute strings
@@ -193,6 +205,14 @@ export class SimplePlantCard extends LitElement {
         return document.createElement(`${CARD_TYPE}-editor`);
     }
 
+    static getStubConfig(hass: HomeAssistant2) {
+        // Find the first simple_plant device for the preview
+        const device = Object.values(hass.devices).find(
+            (d) => d.identifiers?.some((id: [string, string]) => id[0] === INTEGRATION)
+        );
+        return { device: device?.id || "" };
+    }
+
     getCardSize() {
         return 10;
     }
@@ -244,7 +264,7 @@ export class SimplePlantCard extends LitElement {
         if (device)
             this._device_name = device.name;
         else
-            throw new Error("Couldn't find selected device");
+            this._device_name = "";
     }
 
     _fetch_entities() {
@@ -270,10 +290,10 @@ export class SimplePlantCard extends LitElement {
         if (!this._entity_states.size || this._translations_loaded)
             return
         const translation_key = `component.${INTEGRATION}.entity.button.mark_watered.name`
-        this._translations["button"] = `${this._hass.localize(translation_key)} !`
-        this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel") || this._hass.localize("common.cancel")
-        this._translations["today"] = this._hass.localize("ui.components.calendar.today")
-        this._translations["late"] = this._hass.localize(`component.${INTEGRATION}.entity.binary_sensor.problem.name`)
+        this._translations["button"] = `${this._hass.localize(translation_key)} !` || "1"
+        this._translations["cancel"] = this._hass.localize("ui.common.cancel") || this._hass.localize("common.cancel") || "2"
+        this._translations["today"] = this._hass.localize("ui.components.calendar.today") || "3"
+        this._translations["late"] = this._hass.localize(`component.${INTEGRATION}.entity.binary_sensor.problem.name`) || "4"
         this._translations_loaded = true
     }
 }

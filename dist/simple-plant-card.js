@@ -825,6 +825,16 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         }
         // Updating states
         if (!this._entity_states.size) this._update_entites();
+        // Guard: if entities still aren't loaded, show a placeholder
+        if (!this._entity_states.size || !this._entity_states.get("health")) return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+                <ha-card>
+                    <div class="card-content">
+                        <div class="info">
+                            <h1>${this._device_name || "Simple Plant"}</h1>
+                        </div>
+                    </div>
+                </ha-card>
+            `;
         this._states_updated = false; // resetting for future use
         this._loadTranslations();
         // compute strings
@@ -903,6 +913,13 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         // Create and return an editor element for UI card edition
         return document.createElement(`${(0, $3cb55e3e7ebd776a$export$31089ea8b3e502e3)}-editor`);
     }
+    static getStubConfig(hass) {
+        // Find the first simple_plant device for the preview
+        const device = Object.values(hass.devices).find((d)=>d.identifiers?.some((id)=>id[0] === (0, $3cb55e3e7ebd776a$export$a970e6ec17c9a61d)));
+        return {
+            device: device?.id || ""
+        };
+    }
     getCardSize() {
         return 10;
     }
@@ -937,7 +954,7 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         if (!this._device_id || !this._hass) return;
         const device = Object.values(this._hass.devices).find((device)=>device.id == this._device_id);
         if (device) this._device_name = device.name;
-        else throw new Error("Couldn't find selected device");
+        else this._device_name = "";
     }
     _fetch_entities() {
         // Get entities from given device
@@ -956,10 +973,10 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
     async _loadTranslations() {
         if (!this._entity_states.size || this._translations_loaded) return;
         const translation_key = `component.${(0, $3cb55e3e7ebd776a$export$a970e6ec17c9a61d)}.entity.button.mark_watered.name`;
-        this._translations["button"] = `${this._hass.localize(translation_key)} !`;
-        this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel") || this._hass.localize("common.cancel");
-        this._translations["today"] = this._hass.localize("ui.components.calendar.today");
-        this._translations["late"] = this._hass.localize(`component.${(0, $3cb55e3e7ebd776a$export$a970e6ec17c9a61d)}.entity.binary_sensor.problem.name`);
+        this._translations["button"] = `${this._hass.localize(translation_key)} !` || "1";
+        this._translations["cancel"] = this._hass.localize("ui.common.cancel") || this._hass.localize("common.cancel") || "2";
+        this._translations["today"] = this._hass.localize("ui.components.calendar.today") || "3";
+        this._translations["late"] = this._hass.localize(`component.${(0, $3cb55e3e7ebd776a$export$a970e6ec17c9a61d)}.entity.binary_sensor.problem.name`) || "4";
         this._translations_loaded = true;
     }
     constructor(...args){
@@ -1049,7 +1066,8 @@ window.customCards = window.customCards || [];
 window.customCards.push({
     type: (0, $3cb55e3e7ebd776a$export$31089ea8b3e502e3),
     name: (0, $3cb55e3e7ebd776a$export$112ee299e69fdf7),
-    description: (0, $3cb55e3e7ebd776a$export$ce612590f71e0c8a)
+    description: (0, $3cb55e3e7ebd776a$export$ce612590f71e0c8a),
+    preview: true
 });
 
 
