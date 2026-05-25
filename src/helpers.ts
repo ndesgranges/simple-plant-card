@@ -17,7 +17,8 @@ export interface Entity extends HassEntity {
 
 interface Device {
     id: string,
-    name: string
+    name: string,
+    identifiers?: [string, string][]
 }
 
 export interface HomeAssistant2 extends HomeAssistant {
