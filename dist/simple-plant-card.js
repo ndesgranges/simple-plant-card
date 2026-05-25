@@ -957,7 +957,7 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         if (!this._entity_states.size || this._translations_loaded) return;
         const translation_key = `component.${(0, $3cb55e3e7ebd776a$export$a970e6ec17c9a61d)}.entity.button.mark_watered.name`;
         this._translations["button"] = `${this._hass.localize(translation_key)} !`;
-        this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel");
+        this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel") || this._hass.localize("common.cancel");
         this._translations["today"] = this._hass.localize("ui.components.calendar.today");
         this._translations["late"] = this._hass.localize(`component.${(0, $3cb55e3e7ebd776a$export$a970e6ec17c9a61d)}.entity.binary_sensor.problem.name`);
         this._translations_loaded = true;
