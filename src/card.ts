@@ -271,7 +271,7 @@ export class SimplePlantCard extends LitElement {
             return
         const translation_key = `component.${INTEGRATION}.entity.button.mark_watered.name`
         this._translations["button"] = `${this._hass.localize(translation_key)} !`
-        this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel")
+        this._translations["cancel"] = this._hass.localize("ui.dialogs.generic.cancel") || this._hass.localize("common.cancel")
         this._translations["today"] = this._hass.localize("ui.components.calendar.today")
         this._translations["late"] = this._hass.localize(`component.${INTEGRATION}.entity.binary_sensor.problem.name`)
         this._translations_loaded = true
