@@ -45,6 +45,8 @@ function relativeDays(isoDateString: string) {
 
 export function relativeDate(isoDateString: string, local: string = "en", today: string = "today") {
     const diff_days = relativeDays(isoDateString)
+    if (!isFinite(diff_days))
+        return isoDateString
     const relativeTimeFormat = new Intl.RelativeTimeFormat(local, { style: "long" });
     if (diff_days === 0)
         return today

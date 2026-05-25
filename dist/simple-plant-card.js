@@ -759,6 +759,7 @@ function $feccc7a5980a21d5$var$relativeDays(isoDateString) {
 }
 function $feccc7a5980a21d5$export$6270e84457db9b38(isoDateString, local = "en", today = "today") {
     const diff_days = $feccc7a5980a21d5$var$relativeDays(isoDateString);
+    if (!isFinite(diff_days)) return isoDateString;
     const relativeTimeFormat = new Intl.RelativeTimeFormat(local, {
         style: "long"
     });
@@ -771,13 +772,18 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
     static{
         this.keys = [
             "mark_watered",
+            "mark_fertilized",
             "todo",
             "problem",
+            "fertilize_todo",
             "last_watered",
+            "last_fertilized",
             "picture",
             "days_between_waterings",
+            "days_between_fertilizations",
             "health",
-            "next_watering"
+            "next_watering",
+            "next_fertilization"
         ];
     }
     set hass(hass) {
@@ -812,6 +818,7 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
     setConfig(config) {
         // Triggers everytime the config of the card change
         if (!config.device) throw new Error("You need to define a name");
+        this._config = config;
         this._device_id = config.device;
         // while editing the entity in the card editor
         if (this._hass) this.hass = this._hass;
@@ -872,6 +879,15 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         const last_date = this._entity_states.get("last_watered").state;
         const last_watered = (0, $feccc7a5980a21d5$export$6270e84457db9b38)(last_date, local, today);
         const button_label = last_watered === today ? this._translations["cancel"] : this._translations["button"];
+        // Fertilization (optional)
+        const show_fert = this._config?.show_fertilization && this._entity_states.get("next_fertilization");
+        let next_fertilization = "";
+        let fert_color = "";
+        if (show_fert) {
+            const fert_date = this._entity_states.get("next_fertilization").state;
+            next_fertilization = (0, $feccc7a5980a21d5$export$6270e84457db9b38)(fert_date, local, today);
+            fert_color = this._entity_states.get("next_fertilization").attributes.color || "";
+        }
         // return card
         return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
             <ha-card>
@@ -924,6 +940,19 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
                             </div>
                         </div>
 
+                        ${show_fert ? (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
+                        <div class="row">
+                            <ha-icon
+                                data-color
+                                style="--color: ${fert_color};"
+                                .icon=${"mdi:sprout"}
+                            ></ha-icon>
+                            <div class="content" @click="${()=>this._moreInfo("last_fertilized")}">
+                                <p>${next_fertilization}</p>
+                            </div>
+                        </div>
+                        ` : ""}
+
                         <ha-button
                             @click="${this._handleButton}"
                         >${button_label}</ha-button>
@@ -968,8 +997,17 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         var trigger_update = false;
         if (!this._entity_ids || !this._hass) return;
         for (const [key, id] of Object.entries(this._entity_ids)){
-            if (!this._entity_states.has(key) || this._entity_states.get(key).state != this._hass.states[id].state) trigger_update = true;
-            this._entity_states.set(key, this._hass.states[id]);
+            const state = this._hass.states[id];
+            if (!state) {
+                // Entity was removed (e.g. fertilization disabled)
+                if (this._entity_states.has(key)) {
+                    this._entity_states.delete(key);
+                    trigger_update = true;
+                }
+                continue;
+            }
+            if (!this._entity_states.has(key) || this._entity_states.get(key).state != state.state) trigger_update = true;
+            this._entity_states.set(key, state);
         }
         if (trigger_update) this._states_updated = true;
     }
@@ -1024,6 +1062,12 @@ class $d067581fc0d59830$export$2630dac655fddcab extends (0, $ab210b2da7b39b9d$ex
                         integration: (0, $3cb55e3e7ebd776a$export$a970e6ec17c9a61d)
                     }
                 }
+            },
+            {
+                name: "show_fertilization",
+                selector: {
+                    boolean: {}
+                }
             }
         ];
     }
@@ -1044,8 +1088,7 @@ class $d067581fc0d59830$export$2630dac655fddcab extends (0, $ab210b2da7b39b9d$ex
     // This function is called when the input element of the editor loses focus
     _valueChanged(ev) {
         if (!this._config || !this._hass) return;
-        const _config = Object.assign({}, this._config);
-        _config.device = ev.detail.value.device;
+        const _config = Object.assign({}, this._config, ev.detail.value);
         this._config = _config;
         const event = new CustomEvent("config-changed", {
             detail: {
@@ -1074,7 +1117,8 @@ class $d067581fc0d59830$export$2630dac655fddcab extends (0, $ab210b2da7b39b9d$ex
             if (label) return label;
             label = this.hass?.localize(`ui.panel.lovelace.editor.card.${schema.label}`);
             if (label) return label;
-            return schema.label;
+            if (schema.name === "show_fertilization") return "Show fertilization";
+            return schema.name;
         };
     }
 }
