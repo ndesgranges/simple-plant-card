@@ -31,20 +31,16 @@ export interface HomeAssistant2 extends HomeAssistant {
 
 //---- DATE ----
 
-// https://stackoverflow.com/a/15289883/13597384
-function dateDiffInDays(a: Date, b: Date) {
-  const _MS_PER_DAY = 1000 * 60 * 60 * 24;
-  // Discard the time and time-zone information.
-  const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-  const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-
-  return Math.floor((utc2 - utc1) / _MS_PER_DAY);
-}
-
 function relativeDays(isoDateString: string) {
-    const today = new Date(Date.now());
-    const dateB = new Date(Date.parse(isoDateString));
-    return dateDiffInDays(today, dateB);
+    // Parse target date string directly to avoid JS interpreting it as UTC midnight
+    const [year, month, day] = isoDateString.split('-').map(Number);
+    // Get today's local date components
+    const now = new Date();
+    // Use Date.UTC purely as a way to get comparable day-level numbers
+    const utcToday = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    const utcTarget = Date.UTC(year, month - 1, day);
+    const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+    return Math.floor((utcTarget - utcToday) / _MS_PER_DAY);
 }
 
 export function relativeDate(isoDateString: string, local: string = "en", today: string = "today") {
