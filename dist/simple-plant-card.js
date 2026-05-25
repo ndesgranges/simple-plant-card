@@ -746,18 +746,16 @@ const $13632afec4749c69$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
 
 
 //---- DATE ----
-// https://stackoverflow.com/a/15289883/13597384
-function $feccc7a5980a21d5$var$dateDiffInDays(a, b) {
-    const _MS_PER_DAY = 86400000;
-    // Discard the time and time-zone information.
-    const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-    const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-    return Math.floor((utc2 - utc1) / _MS_PER_DAY);
-}
 function $feccc7a5980a21d5$var$relativeDays(isoDateString) {
-    const today = new Date(Date.now());
-    const dateB = new Date(Date.parse(isoDateString));
-    return $feccc7a5980a21d5$var$dateDiffInDays(today, dateB);
+    // Parse target date string directly to avoid JS interpreting it as UTC midnight
+    const [year, month, day] = isoDateString.split('-').map(Number);
+    // Get today's local date components
+    const now = new Date();
+    // Use Date.UTC purely as a way to get comparable day-level numbers
+    const utcToday = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    const utcTarget = Date.UTC(year, month - 1, day);
+    const _MS_PER_DAY = 86400000;
+    return Math.floor((utcTarget - utcToday) / _MS_PER_DAY);
 }
 function $feccc7a5980a21d5$export$6270e84457db9b38(isoDateString, local = "en", today = "today") {
     const diff_days = $feccc7a5980a21d5$var$relativeDays(isoDateString);
