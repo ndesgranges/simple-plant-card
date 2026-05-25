@@ -4,11 +4,22 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
+
+![GitHub branch check runs](https://img.shields.io/github/check-runs/ndesgranges/simple-plant-card/main?style=for-the-badge)
+
+[![GitHub Release](https://img.shields.io/github/v/release/ndesgranges/simple-plant-card?display_name=tag&style=for-the-badge
+)](https://github.com/ndesgranges/simple-plant-card/releases)
+
+[![buymeacoffee](https://img.shields.io/badge/buy%20me%20a%20coffee-%23FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/ndesgranges)
+
+
 Simple Plant Card is a custom dashboard card for the [Simple Plant integration](https://github.com/ndesgranges/simple-plant)
 
 This repository exists only to allow installation through HACS (which does not allow both an integration and custom card in the same repository)
 
-For any issue regarding this custom card, please report it in [the main repository](https://github.com/ndesgranges/simple-plant).
+
+> [!IMPORTANT]
+> For any issue regarding this custom card, please report it in [the main repository](https://github.com/ndesgranges/simple-plant).
 
 ## Installation
 
