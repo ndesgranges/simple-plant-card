@@ -147,9 +147,11 @@ export class SimplePlantCard extends LitElement {
         const next_watering_class = late ? "sub" : "";
         const late_class = late ? "" : "hidden";
 
-        const last_date = this._entity_states.get("last_watered").state;
-        const last_watered = relativeDate(last_date, local, today)
-        const button_label = last_watered === today ? this._translations["cancel"] : this._translations["button"]
+        const last_watered_entity = this._entity_states.get("last_watered");
+        const watered_today = relativeDate(last_watered_entity.state, local, today) === today
+        const can_undo = Boolean(last_watered_entity.attributes.previous_value)
+        const button_label = watered_today && can_undo ? this._translations["cancel"] : this._translations["button"]
+        const button_disabled = watered_today && !can_undo
 
         // Fertilization (optional)
         const show_fert = this._config?.show_fertilization && this._entity_states.get("next_fertilization");
@@ -230,6 +232,7 @@ export class SimplePlantCard extends LitElement {
                         ` : ""}
 
                         <ha-button
+                            .disabled=${button_disabled}
                             @click="${this._handleButton}"
                         >${button_label}</ha-button>
                     </div>
@@ -319,18 +322,13 @@ export class SimplePlantCard extends LitElement {
         // Get entities from given device
         if(!this._device_id || !this._hass)
             return
-        const entities = Object.values(this._hass.entities)
-        const device_entities = entities.filter((entity) => entity.device_id == this._device_id);
-        const entity_ids = device_entities.map(({entity_id}) => (entity_id))
-        // parse entities
-        entity_ids.forEach(id => {
-            SimplePlantCard.keys.forEach((key) => {
-                if (id.includes(key)) {
-                // Associate the corresponding key with the matched string
-                this._entity_ids[key] = id;
-                }
+        // Match on translation_key, as entity_ids may be renamed by users
+        Object.values(this._hass.entities)
+            .filter((entity) => entity.device_id == this._device_id)
+            .filter((entity) => SimplePlantCard.keys.includes(entity.translation_key))
+            .forEach((entity) => {
+                this._entity_ids[entity.translation_key] = entity.entity_id;
             });
-        });
     }
 
 
