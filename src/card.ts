@@ -319,18 +319,13 @@ export class SimplePlantCard extends LitElement {
         // Get entities from given device
         if(!this._device_id || !this._hass)
             return
-        const entities = Object.values(this._hass.entities)
-        const device_entities = entities.filter((entity) => entity.device_id == this._device_id);
-        const entity_ids = device_entities.map(({entity_id}) => (entity_id))
-        // parse entities
-        entity_ids.forEach(id => {
-            SimplePlantCard.keys.forEach((key) => {
-                if (id.includes(key)) {
-                // Associate the corresponding key with the matched string
-                this._entity_ids[key] = id;
-                }
+        // Match on translation_key, as entity_ids may be renamed by users
+        Object.values(this._hass.entities)
+            .filter((entity) => entity.device_id == this._device_id)
+            .filter((entity) => SimplePlantCard.keys.includes(entity.translation_key))
+            .forEach((entity) => {
+                this._entity_ids[entity.translation_key] = entity.entity_id;
             });
-        });
     }
 
 
