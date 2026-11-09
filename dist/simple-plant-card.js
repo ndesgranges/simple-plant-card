@@ -617,7 +617,7 @@ const $3cb55e3e7ebd776a$export$a970e6ec17c9a61d = "simple_plant";
 const $3cb55e3e7ebd776a$export$31089ea8b3e502e3 = "simple-plant-card";
 const $3cb55e3e7ebd776a$export$112ee299e69fdf7 = "Simple Plant Card";
 const $3cb55e3e7ebd776a$export$ce612590f71e0c8a = "Custom card for simple-plant integration";
-const $3cb55e3e7ebd776a$export$d5e7ce6d07daf10f = "v1.2.3";
+const $3cb55e3e7ebd776a$export$d5e7ce6d07daf10f = "v1.2.4";
 const $3cb55e3e7ebd776a$export$6af2e7fd4d06fd68 = "ndesgranges";
 
 
@@ -876,9 +876,11 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
         const late = this._entity_states.get("problem").state === "on";
         const next_watering_class = late ? "sub" : "";
         const late_class = late ? "" : "hidden";
-        const last_date = this._entity_states.get("last_watered").state;
-        const last_watered = (0, $feccc7a5980a21d5$export$6270e84457db9b38)(last_date, local, today);
-        const button_label = last_watered === today ? this._translations["cancel"] : this._translations["button"];
+        const last_watered_entity = this._entity_states.get("last_watered");
+        const watered_today = (0, $feccc7a5980a21d5$export$6270e84457db9b38)(last_watered_entity.state, local, today) === today;
+        const can_undo = Boolean(last_watered_entity.attributes.previous_value);
+        const button_label = watered_today && can_undo ? this._translations["cancel"] : this._translations["button"];
+        const button_disabled = watered_today && !can_undo;
         // Fertilization (optional)
         const show_fert = this._config?.show_fertilization && this._entity_states.get("next_fertilization");
         let next_fertilization = "";
@@ -954,6 +956,7 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
                         ` : ""}
 
                         <ha-button
+                            .disabled=${button_disabled}
                             @click="${this._handleButton}"
                         >${button_label}</ha-button>
                     </div>
@@ -1020,15 +1023,9 @@ class $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5 extends (0, $ab210b2da7b39b9d$ex
     _fetch_entities() {
         // Get entities from given device
         if (!this._device_id || !this._hass) return;
-        const entities = Object.values(this._hass.entities);
-        const device_entities = entities.filter((entity)=>entity.device_id == this._device_id);
-        const entity_ids = device_entities.map(({ entity_id: entity_id })=>entity_id);
-        // parse entities
-        entity_ids.forEach((id)=>{
-            $a399cc6bbb0eb26a$export$ca6a74221cf9b5c5.keys.forEach((key)=>{
-                if (id.includes(key)) // Associate the corresponding key with the matched string
-                this._entity_ids[key] = id;
-            });
+        // Match on translation_key, as entity_ids may be renamed by users
+        Object.values(this._hass.entities).filter((entity)=>entity.device_id == this._device_id).filter((entity)=>$a399cc6bbb0eb26a$export$ca6a74221cf9b5c5.keys.includes(entity.translation_key)).forEach((entity)=>{
+            this._entity_ids[entity.translation_key] = entity.entity_id;
         });
     }
     async _loadTranslations() {
